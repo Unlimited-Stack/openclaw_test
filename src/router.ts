@@ -184,13 +184,15 @@ export async function handleRequest(
           createdAt: msg.createdAt.toISOString(),
         });
       }
-      // 也尝试转发给自己（OpenClaw 对话中 participantA === participantB）
-      forwardToOpenClaw(auth.userId, conversationId, {
-        messageId: msg.messageId,
-        content: msg.content,
-        senderId: msg.senderId,
-        createdAt: msg.createdAt.toISOString(),
-      });
+      // 也尝试转发给自己（仅当 partnerId 不同时，避免重复）
+      if (partnerId !== auth.userId) {
+        forwardToOpenClaw(auth.userId, conversationId, {
+          messageId: msg.messageId,
+          content: msg.content,
+          senderId: msg.senderId,
+          createdAt: msg.createdAt.toISOString(),
+        });
+      }
 
       json(res, 201, {
         messageId: msg.messageId,
