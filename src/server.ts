@@ -91,13 +91,12 @@ wss.on("connection", (ws) => {
           return;
         }
 
-        // 关闭该用户的旧连接
+        // 静默替换旧连接（不发 4004，避免客户端重连循环）
         const oldClient = clients.get(result.userId);
         if (oldClient && oldClient.ws !== ws) {
+          log.info({ userId: result.userId }, "Replacing old connection silently");
+          oldClient.ws.terminate(); // 直接断开，不发 close frame
           clients.delete(result.userId);
-          if (oldClient.ws.readyState === WebSocket.OPEN) {
-            oldClient.ws.close(4004, "Replaced by new connection");
-          }
         }
 
         // 获取或创建 OpenClaw 专属对话
