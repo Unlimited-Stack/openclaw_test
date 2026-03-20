@@ -26,26 +26,29 @@ export const clients = new Map<string, ConnectedClient>();
 export function forwardToOpenClaw(
   userId: string,
   conversationId: string,
-  message: { messageId: string; content: string; senderId: string; createdAt: string },
+  message: { messageId: string; content: string; senderId: string; senderName?: string; createdAt: string },
 ): boolean {
   const client = clients.get(userId);
   if (!client || client.ws.readyState !== WebSocket.OPEN) {
+    log.warn({ userId, conversationId, readyState: client?.ws.readyState }, "OpenClaw not connected or not open");
     return false;
   }
 
-  const inbound: MessageInbound = {
-    type: "message_inbound",
+  const inbound = {
+    type: "message_inbound" as const,
     conversationId,
     messageId: message.messageId,
     content: message.content,
     senderId: message.senderId,
+    senderName: message.senderName ?? "User",
     createdAt: message.createdAt,
   };
 
   const payload = JSON.stringify(inbound);
-  log.info({ userId, conversationId }, "forwarding message to OpenClaw");
+  log.info({ userId, conversationId, payload }, "forwarding message to OpenClaw");
   client.ws.send(payload, (err) => {
     if (err) log.error({ err, userId }, "ws.send failed");
+    else log.info({ userId }, "ws.send succeeded");
   });
 
   return true;

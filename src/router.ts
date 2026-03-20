@@ -181,6 +181,7 @@ export async function handleRequest(
           messageId: msg.messageId,
           content: msg.content,
           senderId: msg.senderId,
+          senderName: auth.email,
           createdAt: msg.createdAt.toISOString(),
         });
       }
@@ -190,6 +191,7 @@ export async function handleRequest(
           messageId: msg.messageId,
           content: msg.content,
           senderId: msg.senderId,
+          senderName: auth.email,
           createdAt: msg.createdAt.toISOString(),
         });
       }
