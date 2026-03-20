@@ -6,6 +6,7 @@
  *   - 输入消息 → 发到 Cosoul API（senderMode: human）
  *   - 每 2 秒轮询新消息
  *   - 显示 OpenClaw 的回复
+ *   - Token 过期自动刷新
  */
 
 import readline from "readline";
@@ -38,7 +39,26 @@ async function login() {
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || `Login failed: ${res.status}`);
   accessToken = data.tokens.accessToken;
-  console.log(`✅ 登录成功: ${data.user.name || EMAIL}`);
+  return data.user;
+}
+
+/** 自动刷新 token（重新登录） */
+async function ensureToken() {
+  try {
+    const res = await fetch(`${COSOUL_SERVER}/health`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    // 简单测试一下 token 是否还有效
+    const testRes = await fetch(`${COSOUL_SERVER}/api/openclaw/conversation`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    if (testRes.status === 401) {
+      console.log(`\x1b[33m  🔄 Token 已过期，自动重新登录...\x1b[0m`);
+      await login();
+    }
+  } catch {
+    // 忽略
+  }
 }
 
 async function getConversation() {
@@ -52,7 +72,7 @@ async function getConversation() {
 }
 
 async function sendMessage(content) {
-  const res = await fetch(`${COSOUL_SERVER}/api/conversations/${conversationId}/messages`, {
+  let res = await fetch(`${COSOUL_SERVER}/api/conversations/${conversationId}/messages`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -60,6 +80,21 @@ async function sendMessage(content) {
     },
     body: JSON.stringify({ content }),
   });
+
+  // Token 过期则自动刷新重试
+  if (res.status === 401) {
+    console.log(`\x1b[33m  🔄 Token 已过期，自动重新登录...\x1b[0m`);
+    await login();
+    res = await fetch(`${COSOUL_SERVER}/api/conversations/${conversationId}/messages`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ content }),
+    });
+  }
+
   const data = await res.json();
   if (!res.ok) {
     console.error(`❌ 发送失败: ${data.error || res.status}`);
@@ -71,9 +106,18 @@ async function sendMessage(content) {
 
 async function pollMessages() {
   try {
-    const res = await fetch(`${COSOUL_SERVER}/api/conversations/${conversationId}/messages`, {
+    let res = await fetch(`${COSOUL_SERVER}/api/conversations/${conversationId}/messages`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
+
+    // Token 过期则静默刷新
+    if (res.status === 401) {
+      await login();
+      res = await fetch(`${COSOUL_SERVER}/api/conversations/${conversationId}/messages`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+    }
+
     if (!res.ok) return;
     const messages = await res.json();
 
@@ -102,7 +146,8 @@ async function main() {
   console.log(`\n💬 Cosoul.AI IM 终端（模拟前端）`);
   console.log(`   服务器: ${COSOUL_SERVER}\n`);
 
-  await login();
+  const user = await login();
+  console.log(`✅ 登录成功: ${user.name || EMAIL}`);
   await getConversation();
 
   // 加载历史消息

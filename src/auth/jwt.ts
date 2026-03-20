@@ -14,7 +14,7 @@ function getJwtSecret(): string {
   return JWT_SECRET;
 }
 
-const ACCESS_TOKEN_EXPIRES = "15m";
+const ACCESS_TOKEN_EXPIRES = "7d";
 export const REFRESH_TOKEN_DAYS = 7;
 
 export interface JwtPayload {
