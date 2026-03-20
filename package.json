@@ -1,0 +1,37 @@
+{
+  "name": "openclaw-cosoul-test",
+  "version": "2.0.0",
+  "private": true,
+  "description": "OpenClaw Bridge 独立服务器 — WS Bridge + REST API 合一",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "setup": "node setup.mjs",
+    "test:connect": "node test-connection.mjs",
+    "test:chat": "node test-chat.mjs",
+    "im": "node im-chat.mjs"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.38.4",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.13.1",
+    "pino": "^9.6.0",
+    "uuid": "^11.1.0",
+    "ws": "^8.18.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/node": "^22.10.5",
+    "@types/pg": "^8.11.11",
+    "@types/uuid": "^10.0.0",
+    "@types/ws": "^8.5.14",
+    "pino-pretty": "^13.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}
