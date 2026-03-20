@@ -1,0 +1,22 @@
+{
+  "name": "cosoul-connect",
+  "version": "2.0.0",
+  "description": "Connect OpenClaw to Cosoul.AI IM system via WebSocket Bridge",
+  "type": "module",
+  "scripts": {
+    "install": "node install.mjs"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "openclaw": {
+    "extensions": ["./index.ts"],
+    "config": {
+      "channels.cosoul": {
+        "enabled": false,
+        "bridgeUrl": "",
+        "apiKey": ""
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "cosoul",
+  "name": "Cosoul.AI",
+  "description": "Cosoul.AI IM channel plugin via WebSocket Bridge",
+  "version": "2.0.0",
+  "author": "Cosoul.AI Team",
+  "license": "MIT",
+  "main": "index.ts",
+  "config": {
+    "bridgeUrl": {
+      "type": "string",
+      "description": "Cosoul Bridge WebSocket URL (e.g., ws://host:4060)",
+      "required": true
+    },
+    "apiKey": {
+      "type": "string",
+      "description": "API Key from Cosoul.AI admin panel",
+      "required": true,
+      "secret": true
+    }
+  }
+}
