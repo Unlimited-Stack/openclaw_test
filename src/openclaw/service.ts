@@ -26,7 +26,7 @@ function hashApiKey(key: string): string {
 export async function createApiKey(
   userId: string,
   label?: string,
-  expiresInDays: number = 90,
+  expiresInDays: number = 36500, // 默认 100 年，相当于永不过期
 ): Promise<{ id: string; rawKey: string; label: string | null; expiresAt: Date }> {
   const rawKey = generateApiKey();
   const keyHash = hashApiKey(rawKey);
